@@ -1,0 +1,2 @@
+class PrecipitationController < ApplicationController
+end
