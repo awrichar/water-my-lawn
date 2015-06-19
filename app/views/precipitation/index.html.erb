@@ -1,0 +1,19 @@
+<div class="location">
+  Location: <%= "#{@city}, #{@state}" %>
+</div>
+
+<table>
+  <tr>
+    <th>Date</th>
+    <th>Precipitation</th>
+  </tr>
+
+  <% @days.each do |day| %>
+  <tr>
+    <td class="<%= day['date'] == @today ? 'today' : '' %>">
+      <%= day['date'] %>
+    </td>
+    <td><%= day['precipitation'] %> in</td>
+  </tr>
+  <% end %>
+</table>

@@ -22,5 +22,10 @@ module Workspace
 
     # Do not swallow errors in after_commit/after_rollback callbacks.
     config.active_record.raise_in_transactional_callbacks = true
+
+    # Configure Google API key for timezones
+    Timezone::Configure.begin do |c|
+      c.google_api_key = 'AIzaSyCWgNHcySea8KAwwPsFLfuWDN6mJZgTs2c'
+    end
   end
 end
