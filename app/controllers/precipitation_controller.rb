@@ -8,18 +8,26 @@ FORECAST_CACHE_TIME = 12.hours
 
 class PrecipitationController < ApplicationController
   def index
-    wunderground = Wunderground.new
-    @city = CITY
-    @state = STATE
+    if params[:location].blank?
+      location = "#{CITY}, #{STATE}"
+    else
+      location = params[:location]
+    end
+
+    loc = Geokit::Geocoders::GoogleGeocoder.geocode(location)
+    city = loc.city
+    state = loc.state
+    @location = "#{city}, #{state}"
 
     # Get the current date and 4 days on each side
-    @today = wunderground.get_date_for_city(@city, @state)
+    wunderground = Wunderground.new
+    @today = wunderground.get_date_for_location(loc)
     date = @today - 4.days
 
     @days = []
     for i in (0..8)
-      precipitation = wunderground.get_precipitation(@city, @state, date, @today)
-      @days.push({ 'date' => date, 'precipitation' => precipitation })
+      precipitation = wunderground.get_precipitation(city, state, date, @today)
+      @days.push({ date: date, precipitation: precipitation })
       date += 1.days
     end
   end
@@ -56,6 +64,15 @@ class Wunderground
     p.save
   end
 
+  def get_cached_precipitation(city, state, date)
+    p = Precipitation.find_by(city: city, state: state, date: date)
+    if not p or (p.forecast and p.updated_at < FORECAST_CACHE_TIME.ago)
+      nil
+    else
+      p.precipitation
+    end
+  end
+
   def get_precipitation_forecast(city, state, date)
     forecast = get_forecast(city, state, date)
     forecast['qpf_allday']['in']
@@ -69,26 +86,23 @@ class Wunderground
 
   def get_precipitation(city, state, date, today)
     last_forecast_day = today + 9.days
+    precip = get_cached_precipitation(city, state, date)
 
-    p = Precipitation.find_by(city: city, state: state, date: date)
-    if p and (not p.forecast or p.updated_at >= FORECAST_CACHE_TIME.ago)
-      return p.precipitation
-    end
-
-    if date < today
-      precip = get_precipitation_historical(city, state, date)
-      cache_precipitation(city, state, date, precip, false)
-    elsif date <= last_forecast_day
-      precip = get_precipitation_forecast(city, state, date)
-      cache_precipitation(city, state, date, precip, true)
+    if not precip
+      if date < today
+        precip = get_precipitation_historical(city, state, date)
+        cache_precipitation(city, state, date, precip, false)
+      elsif date <= last_forecast_day
+        precip = get_precipitation_forecast(city, state, date)
+        cache_precipitation(city, state, date, precip, true)
+      end
     end
 
     precip ? sprintf('%0.2f', precip) : nil
   end
 
-  def get_date_for_city(city, state)
-    resp = Geokit::Geocoders::GoogleGeocoder.geocode('#{city}, #{state}')
-    timezone = Timezone::Zone.new :latlon =>resp.ll.split(',')
+  def get_date_for_location(loc)
+    timezone = Timezone::Zone.new :latlon =>loc.ll.split(',')
     timezone.time(Time.now).to_date
   end
 

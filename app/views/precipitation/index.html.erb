@@ -1,5 +1,9 @@
 <div class="location">
-  Location: <%= "#{@city}, #{@state}" %>
+  <%= form_tag '/forecast' do %>
+    <%= label_tag(:location, "Location:") %>
+    <%= text_field_tag(:location, @location) %>
+    <%= submit_tag("Go") %>
+  <% end %>
 </div>
 
 <table>
@@ -10,10 +14,10 @@
 
   <% @days.each do |day| %>
   <tr>
-    <td class="<%= day['date'] == @today ? 'today' : '' %>">
-      <%= day['date'] %>
+    <td class="<%= day[:date] == @today ? 'today' : '' %>">
+      <%= day[:date] %>
     </td>
-    <td><%= day['precipitation'] %> in</td>
+    <td><%= day[:precipitation] %> in</td>
   </tr>
   <% end %>
 </table>

@@ -1,6 +1,9 @@
 Rails.application.routes.draw do
   root 'precipitation#index'
 
+  get 'forecast' => 'precipitation#index'
+  post 'forecast' => 'precipitation#index'
+
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 
