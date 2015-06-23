@@ -39,7 +39,9 @@ class Wunderground
       year = forecast['date']['year']
       month = forecast['date']['month']
       day = forecast['date']['day']
-      @forecasts[Date.new(year, month, day)] = forecast
+      date = Date.new(year, month, day)
+
+      @forecasts[date] = forecast
     end
 
     @forecasts[date]
@@ -51,9 +53,19 @@ class Wunderground
   end
 
   def get_precipitation_historical(city, state, date)
+    p = Precipitation.find_by(city: city, state: state, date: date)
+    if p
+      return p.precipitation
+    end
+
     fmt_date = date.strftime("%Y%m%d")
     resp = request("history_#{fmt_date}/q/#{state}/#{city}")
-    resp['history']['dailysummary'][0]['precipi']
+    precip = resp['history']['dailysummary'][0]['precipi']
+
+    Precipitation.create(date: date, city: city, state: state,
+        precipitation: precip, forecast: false)
+
+    return precip
   end
 
   def get_precipitation(city, state, date)
