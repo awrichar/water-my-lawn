@@ -23,9 +23,10 @@ class PrecipitationController < ApplicationController
     wunderground = Wunderground.new
     @today = wunderground.get_date_for_location(loc)
     date = @today - 4.days
+    end_date = @today + 4.days
 
     @days = []
-    for i in (0..8)
+    while date <= end_date do
       precipitation = wunderground.get_precipitation(city, state, date, @today)
       @days.push({ date: date, precipitation: precipitation })
       date += 1.days
