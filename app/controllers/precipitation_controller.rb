@@ -4,6 +4,8 @@ BASE_URI = "http://api.wunderground.com/api/#{WUNDERGROUND_KEY}"
 CITY = "Durham"
 STATE = "NC"
 
+FORECAST_CACHE_TIME = 12.hours
+
 class PrecipitationController < ApplicationController
   def index
     wunderground = Wunderground.new
@@ -47,35 +49,39 @@ class Wunderground
     @forecasts[date]
   end
 
+  def cache_precipitation(city, state, date, precip, forecast)
+    p = Precipitation.find_or_create_by(city: city, state: state, date: date)
+    p.precipitation = precip
+    p.forecast = forecast
+    p.save
+  end
+
   def get_precipitation_forecast(city, state, date)
     forecast = get_forecast(city, state, date)
     forecast['qpf_allday']['in']
   end
 
   def get_precipitation_historical(city, state, date)
-    p = Precipitation.find_by(city: city, state: state, date: date)
-    if p
-      return p.precipitation
-    end
-
     fmt_date = date.strftime("%Y%m%d")
     resp = request("history_#{fmt_date}/q/#{state}/#{city}")
-    precip = resp['history']['dailysummary'][0]['precipi']
-
-    Precipitation.create(date: date, city: city, state: state,
-        precipitation: precip, forecast: false)
-
-    return precip
+    resp['history']['dailysummary'][0]['precipi']
   end
 
   def get_precipitation(city, state, date)
     today = get_date_for_city(city, state)
     last_forecast_day = today + 9.days
 
+    p = Precipitation.find_by(city: city, state: state, date: date)
+    if p and (not p.forecast or p.updated_at >= FORECAST_CACHE_TIME.ago)
+      return p.precipitation
+    end
+
     if date < today
       precip = get_precipitation_historical(city, state, date)
+      cache_precipitation(city, state, date, precip, false)
     elsif date <= last_forecast_day
       precip = get_precipitation_forecast(city, state, date)
+      cache_precipitation(city, state, date, precip, true)
     end
 
     precip ? sprintf('%0.2f', precip) : nil
