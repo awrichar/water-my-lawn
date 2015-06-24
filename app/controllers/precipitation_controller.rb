@@ -18,7 +18,7 @@ class PrecipitationController < ApplicationController
 
     @days = []
     for i in (0..8)
-      precipitation = wunderground.get_precipitation(@city, @state, date)
+      precipitation = wunderground.get_precipitation(@city, @state, date, @today)
       @days.push({ 'date' => date, 'precipitation' => precipitation })
       date += 1.days
     end
@@ -67,8 +67,7 @@ class Wunderground
     resp['history']['dailysummary'][0]['precipi']
   end
 
-  def get_precipitation(city, state, date)
-    today = get_date_for_city(city, state)
+  def get_precipitation(city, state, date, today)
     last_forecast_day = today + 9.days
 
     p = Precipitation.find_by(city: city, state: state, date: date)
