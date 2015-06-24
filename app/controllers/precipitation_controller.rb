@@ -10,12 +10,12 @@ class PrecipitationController < ApplicationController
     @city = CITY
     @state = STATE
 
-    # Get the current date and 5 days on each side
+    # Get the current date and 4 days on each side
     @today = wunderground.get_date_for_city(@city, @state)
-    date = @today - 5.days
+    date = @today - 4.days
 
     @days = []
-    for i in (0..10)
+    for i in (0..8)
       precipitation = wunderground.get_precipitation(@city, @state, date)
       @days.push({ 'date' => date, 'precipitation' => precipitation })
       date += 1.days
