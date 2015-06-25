@@ -21,3 +21,26 @@
   </tr>
   <% end %>
 </table>
+
+Last rain:
+<% if @last_rain %>
+  <%= @last_rain[:precipitation] %> in on <%= @last_rain[:date] %>
+<% else %>
+  <%= @EVAPORATION_DAYS %> or more days ago
+<% end %>
+<br />
+
+Next rain:
+<% if @next_rain %>
+  <%= @next_rain[:precipitation] %> in on <%= @next_rain[:date] %>
+<% else %>
+  <%= @EVAPORATION_DAYS %> or more days ago
+<% end %>
+<br />
+
+Lawn saturation: <%= @saturation %><br />
+<br />
+
+<strong>Should I Water My Lawn Today?</strong><br />
+<%= @status %><br />
+<em><%= @long_status %></em>
