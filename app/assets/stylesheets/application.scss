@@ -13,18 +13,31 @@
  *= require_tree .
  *= require_self
  */
+
+@import "compass/css3";
+
 body {
   font-family: Arial, Helvetica, sans-serif;
   margin: 0;
   padding: 10px;
+  text-align: center;
 }
 
 table {
   border-collapse: collapse;
   border-spacing: 0px;
+  margin: auto;
 
   td, th {
     border: 1px solid #ddd;
     padding: 5px;
   }
+}
+
+#main {
+  background: #eee;
+  padding: 15px;
+  margin: auto;
+  max-width: 400px;
+  @include border-radius(15px);
 }

@@ -6,41 +6,34 @@
   <% end %>
 </div>
 
-<table>
-  <tr>
-    <th>Date</th>
-    <th>Precipitation</th>
-  </tr>
+<h1>Should I Water My Lawn Today?</h1>
+<div id="main">
+  <div id="status"><%= @status %></div>
+  <em><%= @long_status %></em>
+</div>
+<br />
 
-  <% @days.each do |day| %>
-  <tr>
-    <td class="<%= day[:date] == @today ? 'today' : '' %>">
-      <%= day[:date] %>
-    </td>
-    <td><%= day[:precipitation] %> in</td>
-  </tr>
-  <% end %>
-</table>
-
-Last rain:
+Last Rain:
 <% if @last_rain %>
   <%= @last_rain[:precipitation] %> in on <%= @last_rain[:date] %>
 <% else %>
   <%= @EVAPORATION_DAYS %> or more days ago
 <% end %>
 <br />
+Lawn saturation: <%= @saturation %> in
 
-Next rain:
-<% if @next_rain %>
-  <%= @next_rain[:precipitation] %> in on <%= @next_rain[:date] %>
-<% else %>
-  <%= @EVAPORATION_DAYS %> or more days ago
-<% end %>
-<br />
+<h2>Precipitation Forecast</h2>
+<table>
+  <tr>
+    <th>Today</th>
+    <% for day in @days[1..-1] %>
+      <th><%= Date::ABBR_DAYNAMES[day[:date].wday] %></th>
+    <% end %>
+  </tr>
 
-Lawn saturation: <%= @saturation %><br />
-<br />
-
-<strong>Should I Water My Lawn Today?</strong><br />
-<%= @status %><br />
-<em><%= @long_status %></em>
+  <tr>
+    <% for day in @days %>
+      <td><%= day[:precipitation] %> in</td>
+    <% end %>
+  </tr>
+</table>

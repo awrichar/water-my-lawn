@@ -24,12 +24,11 @@ class PrecipitationController < ApplicationController
     # Get the current date and 4 days on each side
     wunderground = Wunderground.new(loc)
     @today = wunderground.today
-    start_date = @today - 4.days
     end_date = @today + 4.days
 
     # Get the precipitation on each day
     @days = []
-    date = start_date
+    date = @today
     while date <= end_date do
       precip = wunderground.get_precipitation(date)
       @days.push({ date: date, precipitation: sprintf('%0.2f', precip) })
