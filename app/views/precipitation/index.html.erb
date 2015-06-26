@@ -1,5 +1,5 @@
 <div class="location">
-  <%= form_tag '/forecast' do %>
+  <%= form_tag '/forecast', method: 'get', enforce_utf8: false do %>
     <%= label_tag(:location, "Location:") %>
     <%= text_field_tag(:location, @location) %>
     <%= submit_tag("Go") %>
