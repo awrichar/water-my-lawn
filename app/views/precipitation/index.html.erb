@@ -13,27 +13,21 @@
 </div>
 <br />
 
-Last Rain:
-<% if @last_rain %>
-  <%= @last_rain[:precipitation] %> in on <%= @last_rain[:date] %>
-<% else %>
-  <%= @EVAPORATION_DAYS %> or more days ago
-<% end %>
-<br />
-Lawn saturation: <%= @saturation %> in
+Precipitation over the past <%= @EVAPORATION_DAYS %> days:
+<%= @total_precipitation %> in
 
 <h2>Precipitation Forecast</h2>
 <table>
   <tr>
     <th>Today</th>
-    <% for day in @days[1..-1] %>
-      <th><%= Date::ABBR_DAYNAMES[day[:date].wday] %></th>
+    <% for date in @forecast.keys[1..-1] %>
+      <th><%= Date::ABBR_DAYNAMES[date.wday] %></th>
     <% end %>
   </tr>
 
   <tr>
-    <% for day in @days %>
-      <td><%= day[:precipitation] %> in</td>
+    <% for precip in @forecast.values %>
+      <td><%= precip %> in</td>
     <% end %>
   </tr>
 </table>

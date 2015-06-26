@@ -8,7 +8,6 @@ FORECAST_CACHE_TIME = 12.hours
 MAX_SATURATION = 0.5
 MIN_SATURATION = MAX_SATURATION * 0.2
 EVAPORATION_DAYS = 5
-EVAPORATION_PER_DAY = 1.0 / EVAPORATION_DAYS
 
 class PrecipitationController < ApplicationController
   def index
@@ -20,72 +19,50 @@ class PrecipitationController < ApplicationController
 
     loc = Geokit::Geocoders::GoogleGeocoder.geocode(location)
     @location = "#{loc.city}, #{loc.state}"
-
-    # Get the current date and 4 days on each side
     wunderground = Wunderground.new(loc)
     @today = wunderground.today
-    end_date = @today + 4.days
+    last_day = EVAPORATION_DAYS - 1
 
-    # Get the precipitation on each day
-    @days = []
-    date = @today
-    while date <= end_date do
-      precip = wunderground.get_precipitation(date)
-      @days.push({ date: date, precipitation: sprintf('%0.2f', precip) })
-      date += 1.days
+    # Examine the precipitation for the past few days
+    @total_precipitation = 0
+    saturation = 0
+    1.upto(last_day) do |offset|
+      precip = wunderground.get_precipitation(@today - offset.days)
+
+      saturation_factor = 1 - offset.to_f / EVAPORATION_DAYS
+      @total_precipitation += precip
+      saturation += [precip, MAX_SATURATION].min * saturation_factor
     end
 
-    date = @today - 1.days
-    saturation_factor = 1 - EVAPORATION_PER_DAY
-    @saturation = 0
-    @last_rain = nil
-
-    # Find the last rain and the current lawn saturation
-    while @saturation < MAX_SATURATION and saturation_factor.round(3) > 0 do
-      precip = wunderground.get_precipitation(date)
-
-      if precip > 0
-        @last_rain = {date: date, precipitation: format_precip(precip)}
-      end
-
-      @saturation += [precip, MAX_SATURATION].min * saturation_factor
-
-      date -= 1.days
-      saturation_factor -= EVAPORATION_PER_DAY
-    end
-
-    date = @today
-    @next_rain = nil
-
-    # Find the next rain
-    while not @next_rain do
-      precip = wunderground.get_precipitation(date)
-      if not precip
-        break
-      elsif precip > 0
-        @next_rain = {date: date, precipitation: precip}
-      end
+    # Examine the forecast for the next few days
+    @forecast = {}
+    @today.upto(@today + last_day.days) do |date|
+      @forecast[date] = wunderground.get_precipitation(date)
     end
 
     # Interpret the results
-    if @saturation > MIN_SATURATION
+    rain_today = @forecast[@today]
+    rain_tomorrow = @forecast[@today + 1.days]
+    if saturation > MIN_SATURATION
       @status = "No"
       @long_status = "You've had plenty of rain."
-    elsif @next_rain[:date] == @today
-      if @next_rain[:precipitation] > MIN_SATURATION
-        @status = "Don't bother"
-        @long_status = "Looks like rain today."
-      else
-        @status = "Probably"
-        @long_status = "There's rain in the forecast, but not much."
-      end
+    elsif saturation + rain_today > MIN_SATURATION
+      @status = "No"
+      @long_status = "Looks like rain today."
+    elsif saturation + rain_today + rain_tomorrow > MIN_SATURATION
+      @status = "Probably not"
+      @long_status = "There's rain in the forecast."
+    elsif rain_today > 0 or rain_tomorrow > 0
+      @status = "Probably"
+      @long_status = "There's rain in the forecast, but not much."
     else
       @status = "Yes"
       @long_status = "Your lawn is looking a bit dry."
     end
 
-    @saturation = format_precip(@saturation)
     @EVAPORATION_DAYS = EVAPORATION_DAYS
+    @total_precipitation = format_precip(@total_precipitation)
+    @forecast.each { |date, precip| @forecast[date] = format_precip(precip) }
   end
 
   private
@@ -143,7 +120,9 @@ class Wunderground
 
     def get_cached_precipitation(date)
       p = Precipitation.find_by(city: @city, state: @state, date: date)
-      if not p or (p.forecast and p.updated_at < FORECAST_CACHE_TIME.ago)
+      if not p
+        nil
+      elsif p.forecast and date < @today or p.updated_at < FORECAST_CACHE_TIME.ago
         nil
       else
         p.precipitation
