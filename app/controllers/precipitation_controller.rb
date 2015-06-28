@@ -1,3 +1,5 @@
+include ERB::Util
+
 WUNDERGROUND_KEY = "b16ca5cc88fa195c"
 BASE_URI = "http://api.wunderground.com/api/#{WUNDERGROUND_KEY}"
 
@@ -134,7 +136,10 @@ class Wunderground
         return @forecasts[date]
       end
 
-      resp = request("forecast10day/q/#{@state}/#{@city}")
+      city = url_encode(@city)
+      state = url_encode(@state)
+
+      resp = request("forecast10day/q/#{state}/#{city}")
       forecasts = resp['forecast']['simpleforecast']['forecastday']
       for forecast in forecasts
         year = forecast['date']['year']
@@ -155,7 +160,10 @@ class Wunderground
 
     def get_precipitation_historical(date)
       fmt_date = date.strftime("%Y%m%d")
-      resp = request("history_#{fmt_date}/q/#{@state}/#{@city}")
+      city = url_encode(@city)
+      state = url_encode(@state)
+
+      resp = request("history_#{fmt_date}/q/#{state}/#{city}")
       resp['history']['dailysummary'][0]['precipi'].to_f
     end
 end
