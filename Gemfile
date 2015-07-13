@@ -21,6 +21,7 @@ gem 'sdoc', '~> 0.4.0', group: :doc
 
 gem 'geokit'
 gem 'timezone'
+gem 'fabric-rails'
 
 group :development, :test do
   gem 'sqlite3'
