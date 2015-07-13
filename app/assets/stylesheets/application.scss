@@ -21,6 +21,10 @@ $blue_light: #D0E0EB;
 
 @import "compass/css3";
 
+html, body {
+  height: 100%;
+}
+
 body {
   font-family: Arial, Helvetica, sans-serif;
   margin: 0;
@@ -37,6 +41,7 @@ table {
   td, th {
     border: 1px solid #fff;
     padding: 5px;
+    background: $blue_med;
   }
 }
 
@@ -60,4 +65,10 @@ table {
 
 .location {
   padding: 10px 0;
+}
+
+.canvas-container {
+  position: absolute !important;
+  left: 0;
+  bottom: 0;
 }

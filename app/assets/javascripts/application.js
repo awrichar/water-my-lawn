@@ -14,4 +14,5 @@
 //= require jquery_ujs
 //= require turbolinks
 //= require dentist
+//= require fabric
 //= require_tree .
