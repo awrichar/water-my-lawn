@@ -1,35 +1,43 @@
+<% content_for :head do%>
+  <%= javascript_tag do %>
+    window.saturation = <%= @saturation %>;
+  <% end %>
+<% end %>
+
 <canvas id="canvas" width="500" height="200"></canvas>
 
-<div class="location">
-  <%= form_tag '/forecast', method: 'get', enforce_utf8: false do %>
-    <%= label_tag(:location, "Location:") %>
-    <%= text_field_tag(:location, @location) %>
-    <%= submit_tag("Go") %>
-  <% end %>
-</div>
-
-<h1>Should I Water My Lawn Today?</h1>
 <div id="main">
-  <div id="status"><%= @status %></div>
-  <em><%= @long_status %></em>
+  <div class="location">
+    <%= form_tag '/forecast', method: 'get', enforce_utf8: false do %>
+      <%= label_tag(:location, "Location:") %>
+      <%= text_field_tag(:location, @location) %>
+      <%= submit_tag("Go") %>
+    <% end %>
+  </div>
+
+  <h1>Should I Water My Lawn Today?</h1>
+  <div class="status">
+    <div class="heading"><%= @status %></div>
+    <em class="subheading"><%= @long_status %></em>
+  </div>
+  <br />
+
+  Precipitation over the past <%= @EVAPORATION_DAYS %> days:
+  <%= @total_precipitation %> in
+
+  <h2>Precipitation Forecast</h2>
+  <table>
+    <tr>
+      <th>Today</th>
+      <% for date in @forecast.keys[1..-1] %>
+        <th><%= Date::ABBR_DAYNAMES[date.wday] %></th>
+      <% end %>
+    </tr>
+
+    <tr>
+      <% for precip in @forecast.values %>
+        <td><%= precip %> in</td>
+      <% end %>
+    </tr>
+  </table>
 </div>
-<br />
-
-Precipitation over the past <%= @EVAPORATION_DAYS %> days:
-<%= @total_precipitation %> in
-
-<h2>Precipitation Forecast</h2>
-<table>
-  <tr>
-    <th>Today</th>
-    <% for date in @forecast.keys[1..-1] %>
-      <th><%= Date::ABBR_DAYNAMES[date.wday] %></th>
-    <% end %>
-  </tr>
-
-  <tr>
-    <% for precip in @forecast.values %>
-      <td><%= precip %> in</td>
-    <% end %>
-  </tr>
-</table>

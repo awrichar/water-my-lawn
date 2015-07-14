@@ -65,6 +65,7 @@ class PrecipitationController < ApplicationController
     @EVAPORATION_DAYS = EVAPORATION_DAYS
     @total_precipitation = format_precip(@total_precipitation)
     @forecast.each { |date, precip| @forecast[date] = format_precip(precip) }
+    @saturation = saturation / MAX_SATURATION
   end
 
   private
