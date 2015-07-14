@@ -33,7 +33,7 @@ maybeNegative = (x) ->
   return if Math.random() > .5 then x else -x
 
 makeBlade = (centerX) ->
-  topY = 0
+  topY = randRange 0, 15
   bottomY = 200
   middleY = (topY + bottomY) / 2
 
