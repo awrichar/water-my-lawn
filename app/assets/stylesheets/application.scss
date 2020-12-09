@@ -19,8 +19,6 @@ $blue_dark: #49708A;
 $blue_med: #88ABC2;
 $blue_light: #D0E0EB;
 
-@import "compass/css3";
-
 html, body {
   height: 100%;
 }
@@ -63,7 +61,7 @@ table {
   padding: 15px;
   margin: auto;
   max-width: 400px;
-  @include border-radius(15px);
+  border-radius: 15px;
 
   .heading {
     font-size: 40pt;
