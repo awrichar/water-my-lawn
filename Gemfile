@@ -1,11 +1,11 @@
 source 'https://rubygems.org'
-ruby '2.2.1'
+ruby '2.6.3'
 
 gem 'rails', '4.2.1'
 
 # Use SCSS for stylesheets
 gem 'sass-rails'
-gem 'compass-rails', github: 'Compass/compass-rails', branch: 'master'
+gem 'compass-rails', git: 'https://github.com/Compass/compass-rails.git'
 # Use Uglifier as compressor for JavaScript assets
 gem 'uglifier', '>= 1.3.0'
 # Use CoffeeScript for .coffee assets and views
