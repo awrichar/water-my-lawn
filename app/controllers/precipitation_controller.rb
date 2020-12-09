@@ -111,7 +111,7 @@ class Wunderground
         http.request(req)
       }
 
-      JSON.parse(res.body)
+      res.code == 200 and JSON.parse(res.body)
     end
 
     def cache_precipitation(date, precip, forecast)
@@ -141,6 +141,8 @@ class Wunderground
       state = url_encode(@state)
 
       resp = request("forecast10day/q/#{state}/#{city}")
+      resp or return nil
+
       forecasts = resp['forecast']['simpleforecast']['forecastday']
       for forecast in forecasts
         year = forecast['date']['year']
@@ -156,7 +158,7 @@ class Wunderground
 
     def get_precipitation_forecast(date)
       forecast = get_forecast(date)
-      forecast['qpf_allday']['in'].to_f
+      forecast ? forecast['qpf_allday']['in'].to_f : 0
     end
 
     def get_precipitation_historical(date)
@@ -165,6 +167,6 @@ class Wunderground
       state = url_encode(@state)
 
       resp = request("history_#{fmt_date}/q/#{state}/#{city}")
-      resp['history']['dailysummary'][0]['precipi'].to_f
+      resp ? resp['history']['dailysummary'][0]['precipi'].to_f : 0
     end
 end
