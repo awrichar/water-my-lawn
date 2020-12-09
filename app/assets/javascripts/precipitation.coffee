@@ -4,7 +4,7 @@
 
 field = null;
 
-$(document).on 'page:change', ->
+$(document).ready ->
   params = document.URL.extract()
 
   if (not params or not params['location']) and navigator.geolocation
