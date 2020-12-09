@@ -1,4 +1,4 @@
-class CreatePrecipitations < ActiveRecord::Migration
+class CreatePrecipitations < ActiveRecord::Migration[4.2]
   def change
     create_table :precipitations do |t|
       t.date :date, null: false
