@@ -9,9 +9,9 @@
 <div id="main">
   <div class="location">
     <%= form_tag '/forecast', method: 'get', enforce_utf8: false do %>
-      <%= label_tag(:location, "Location:") %>
-      <%= text_field_tag(:location, @location) %>
-      <%= submit_tag("Go") %>
+      <%= label_tag(:location, "Location:", class: "form-label") %>
+      <%= text_field_tag(:location, @location, class: "form-control") %>
+      <%= submit_tag("Go", class: "btn btn-light") %>
     <% end %>
   </div>
 
